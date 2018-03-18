@@ -98,6 +98,37 @@ info, warning, critical, error, debug, output
 setLogLevel('info')
 ```
 
+## iPerf (iPerf -> iPerf2 -> iPerf3)
+> iPerf3 is a tool for active measurements of the maximum achievable bandwidth on IP networks.
+> Support tuning of various parameters related to timing, buffers and protocols (TCP, UDP, SCTP with IPv4 and IPv6), TCP protocol is the default one.
+
+Need server and client sides to send data to each other to do bandwidth testing.
+**Defautly**, iPerf3 get users' result on **uploading**.
+iPerf public servers: https://iperf.fr/iperf-servers.php
+
+```shell
+# Be the server in iperf env
+iperf3 -s
+
+# Be a client in iperf env, host can be ip or hostname
+iperf3 -c <host>
+```
+
+### Functionalities:
+* Both server/client side
+  * `-p` - Specify server port to listen on/connect to
+  * `-f` - Format (bits/bytes)
+  * `-i` - Bandwidth report interval
+  * `-t` - Total time in secs to transmit (default 10s)
+  * `-J` - Output in JSON format
+* Server specific
+* Client specific
+  * `-u` - Use UDP connection
+  * `-P` - More than one connection to server (parallel)
+  * `-R` - Reverse the default connection to let server send and client receive
+  * `-4`,`-6` - Only user IPv4 or IPv6
+  * `-F` - Send a file rather than regular TCP packets.
+
 # References
 1. Mininet introduction: https://github.com/mininet/mininet/wiki/Introduction-to-Mininet#wiki-working
 2. Mininet topology: http://www.routereflector.com/2013/11/mininet-as-an-sdn-test-platform/
