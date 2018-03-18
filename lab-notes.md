@@ -28,8 +28,13 @@
   sudo mn --link=tc,bw=10,delay=10ms
   ```
   Use `--link=tc` to use ***Traffic Control Link***.
+
   [Available parameters](http://mininet.org/api/classmininet_1_1link_1_1TCIntf.html):
-  bw, delay , jitter, loss and so on.
+  * `bw` - expressed as a number in Mbit
+  * `delay` - expressed as a string with units in place (e.g. '5ms', '100us', '1s')
+  * `lost` - expressed as a percentage (between 0 and 100)
+  * `max_queue_size` - expressed in packets
+  * `jitter` - similar to `delay`
 
 ### Commands
 ```shell
