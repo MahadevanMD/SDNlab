@@ -139,3 +139,4 @@ iperf3 -c <host>
 2. Mininet topology: http://www.routereflector.com/2013/11/mininet-as-an-sdn-test-platform/
 3. Mininet Python API: http://mininet.org/api/annotated.html
 4. All Mininet test: http://mininet.org/api/classmininet_1_1net_1_1Mininet.html
+5. Mininet source repository resolution: https://www.sdnlab.com/11495.html
