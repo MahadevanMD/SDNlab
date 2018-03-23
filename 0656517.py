@@ -15,6 +15,7 @@ from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
 from mininet.cli import CLI
+from mininet.clean import Cleanup
 
 class MyTopo( Topo ):
     "Simple topology example."
@@ -153,6 +154,7 @@ def perfTest():
     h02.cmdPrint('iperf -c ' + h01.IP() + ' -u -t 10 -i 1 -b 100m')
     h02.cmdPrint('iperf -c ' + h31.IP() + ' -u -t 10 -i 1 -b 100m')
     net.stop()
+    Cleanup()
 
 if __name__ == '__main__':
     setLogLevel('info')
