@@ -35,11 +35,13 @@ if [ $TARGET == "ovs" ] || [ $TARGET == "all" ];then
     mkdir repos && cd repos
   fi
   # Get & install Open vSwitch
-  git clone https://github.com/openvswitch/ovs.git
+  if [ ! -d "ovs" ];then
+    git clone https://github.com/openvswitch/ovs.git
+  fi
   cd ovs
   git checkout v2.5.4
   ./boot.sh && ./configure
-  make && sudo make install
+  make -j 8 && sudo make install
   # Load & initilize the kernel module
   sudo /sbin/modprobe openvswitch
   sudo mkdir -p /usr/local/etc/openvswitch
