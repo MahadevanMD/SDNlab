@@ -47,7 +47,11 @@ if [ $TARGET == "ovs" ] || [ $TARGET == "all" ];then
   sudo mkdir -p /usr/local/etc/openvswitch
   sudo ovsdb-tool create /usr/local/etc/openvswitch/conf.db vswitchd/vswitch.ovsschema
   # Run up the daemon
-  /bin/bash lab2_ovs.sh
+  if [ -f "lab2_ovs.sh" ];then
+    /bin/bash lab2_ovs.sh
+  else
+    echo "Please find lab2_ovs.sh and execute it."
+  fi
 fi
 
 if [ $TARGET == "ryu" ] || [ $TARGET == "all" ];then
