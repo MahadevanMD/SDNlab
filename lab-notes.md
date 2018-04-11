@@ -134,6 +134,17 @@ iperf3 -c <host>
   * `-4`,`-6` - Only user IPv4 or IPv6
   * `-F` - Send a file rather than regular TCP packets.
 
+# Lab 2: Using Open vSwitch as an OpenFlow switch for SDN Research
+
+## Open vSwitch set up for the lab
+```shell
+sudo ovs-vsctl add-br ovs-br0
+sudo ovs-vsctl add-port ovs-br0 ens37
+sudo ovs-vsctl add-port ovs-br0 ens38
+sudo ovs-vsctl set-controller ovss-br0 tcp:192.168.230.129:6633
+sudo ovs-vsctl show # see all settings
+```
+
 # References
 1. Mininet introduction: https://github.com/mininet/mininet/wiki/Introduction-to-Mininet#wiki-working
 2. Mininet topology: http://www.routereflector.com/2013/11/mininet-as-an-sdn-test-platform/
