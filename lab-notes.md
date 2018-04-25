@@ -145,9 +145,46 @@ sudo ovs-vsctl set-controller ovss-br0 tcp:192.168.230.129:6633
 sudo ovs-vsctl show # see all settings
 ```
 
+# Lab 3: Writing SDN Application Modules over Ryu
+## Lab goal
+<img src="https://bit.ly/2HNpVsA" width="80%">
+在 fat tree topology 中，將所有送往非指定 host 的 UDP packets 全部導向指定 host，<br>
+在本次 lab 中，指定 host 為 Pod 0 的第一個 host。<br>
+
+## How to run the environment
+```shell
+# Start Ryu controller
+ryu run path/to/ryu/ryu/app/simple_switch_stp_13.py
+sudo python 0656517.py
+```
+
+## simple_switch.py analysis
+
+* `eth = pkt.get_protocol(ethernet.ethernet)`<br>
+  Get Ethernet information, e.g. MAC
+* `dpid = datapath.id`<br>
+  **dpid** 為 source message 的來源 switch ID
+* `self.logger.info("packet in %s %s %s %s", dpid, src, dst, msg.in_port)` <br>
+  **in_port** 是收 message 用的 port
+* `out_port = self.mac_to_port[dpid][dst]`<br>
+  告訴 switch 要從哪個 **out_port** 送出 packet
+* `out_port = ofproto.OFPP_FLOOD`<br>
+  **OFPP_FLOOD** 讓 switch 把 packet 送往每個 switch output port
+* `actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]`<br>
+  **OFPActionOutput(out_port)** 是一個讓 switch 把 packet 從 **out_port** 送出的 action
+* `self.add_flow(datapath, msg.in_port, dst, src, actions)`<br>
+  Add flow
+* `out = datapath.ofproto_parser.OFPPacketOut(...)`<br>
+  Create "PacketOut" message
+
+Also see https://gist.github.com/aweimeow/d3662485aa224d298e671853aadb2d0f
+
 # References
-1. Mininet introduction: https://github.com/mininet/mininet/wiki/Introduction-to-Mininet#wiki-working
-2. Mininet topology: http://www.routereflector.com/2013/11/mininet-as-an-sdn-test-platform/
-3. Mininet Python API: http://mininet.org/api/annotated.html
-4. All Mininet test: http://mininet.org/api/classmininet_1_1net_1_1Mininet.html
-5. Mininet source repository resolution: https://www.sdnlab.com/11495.html
+1. [Mininet introduction]( https://github.com/mininet/mininet/wiki/Introduction-to-Mininet#wiki-working)
+2. [Mininet topology](http://www.routereflector.com/2013/11/mininet-as-an-sdn-test-platform/)
+3. [Mininet Python API](http://mininet.org/api/annotated.html)
+4. [All Mininet test](http://mininet.org/api/classmininet_1_1net_1_1Mininet.html)
+5. [Mininet source repository resolution](https://www.sdnlab.com/11495.html)
+6. [Ryu Flow Match Structure/Fields](http://ryu.readthedocs.io/en/latest/ofproto_v1_3_ref.html#ryu.ofproto.ofproto_v1_3_parser.OFPMatch)
+7. Ryu Action Structures: [ActionOutput](http://ryu.readthedocs.io/en/latest/ofproto_v1_3_ref.html#ryu.ofproto.ofproto_v1_3_parser.OFPActionOutput), [ActionSetField](http://ryu.readthedocs.io/en/latest/ofproto_v1_3_ref.html#ryu.ofproto.ofproto_v1_3_parser.OFPActionSetField)
+8. [Ryu Packet library API Reference](http://ryu.readthedocs.io/en/latest/library_packet_ref.html)
