@@ -184,6 +184,11 @@ Also see https://gist.github.com/aweimeow/d3662485aa224d298e671853aadb2d0f
 1. Via wireshark
 2. `ovs-ofctl dump-flows <bridge>` or related instructions
 
+## Discovery
+
+When one wants to match UDP packet, one must first specify its ethertype,<br>
+see [OpenFlow spec v1.3](https://bit.ly/1eyrkxY) page 30 for more details
+
 # References
 1. [Mininet introduction]( https://github.com/mininet/mininet/wiki/Introduction-to-Mininet#wiki-working)
 2. [Mininet topology](http://www.routereflector.com/2013/11/mininet-as-an-sdn-test-platform/)
