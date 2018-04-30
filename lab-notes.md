@@ -179,6 +179,11 @@ sudo python 0656517.py
 
 Also see https://gist.github.com/aweimeow/d3662485aa224d298e671853aadb2d0f
 
+## Examine flow entries
+
+1. Via wireshark
+2. `ovs-ofctl dump-flows <bridge>` or related instructions
+
 # References
 1. [Mininet introduction]( https://github.com/mininet/mininet/wiki/Introduction-to-Mininet#wiki-working)
 2. [Mininet topology](http://www.routereflector.com/2013/11/mininet-as-an-sdn-test-platform/)
