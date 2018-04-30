@@ -3,10 +3,15 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
+from ryu.ofproto import inet
+from ryu.ofproto import ether
 from ryu.lib import dpid as dpid_lib
 from ryu.lib import stplib
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
+from ryu.lib.packet import arp
+from ryu.lib.packet import udp
+from ryu.lib.packet import ipv4
 
 
 class SimpleSwitch13(app_manager.RyuApp):
@@ -16,6 +21,8 @@ class SimpleSwitch13(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
+        self.ip_to_port = {}
+        self.ip_to_mac = {}
         self.stp = kwargs['stplib']
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -45,6 +52,8 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
                                 match=match, instructions=inst)
+
+        #print '=== mod: {0}'.format(str(mod))
         datapath.send_msg(mod)
 
     def delete_flow(self, datapath):
@@ -69,12 +78,23 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
+        ARP = pkt.get_protocol(arp.arp)
+        UDP = pkt.get_protocol(udp.udp)
 
         dst = eth.dst
         src = eth.src
 
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
+        self.ip_to_port.setdefault(dpid, {})
+
+        if ARP:
+            if ARP.opcode == arp.ARP_REPLY:
+                ip_src = ARP.src_ip
+                ip_dst = ARP.dst_ip
+                # learn where IP address should use which port
+                self.ip_to_port[dpid][ip_src] = in_port
+                self.ip_to_mac[ip_dst] = ARP.dst_mac
 
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
@@ -88,10 +108,25 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         actions = [parser.OFPActionOutput(out_port)]
 
+        send_back_match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, ip_proto=inet.IPPROTO_UDP, ipv4_src='10.0.0.1')
+        send_back_actions = [parser.OFPActionOutput(out_port)]
+        self.add_flow(datapath, 100, send_back_match, send_back_actions)
+
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
             match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
             self.add_flow(datapath, 1, match, actions)
+            udp_match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, ip_proto=inet.IPPROTO_UDP)
+
+            if '10.0.0.1' in self.ip_to_port[dpid]:
+                redirect_out_port = self.ip_to_port[dpid]['10.0.0.1']
+                redirect_mac = self.ip_to_mac['10.0.0.1']
+                redirect_actions = [parser.OFPActionSetField(eth_dst=redirect_mac),
+                                    parser.OFPActionSetField(ipv4_dst='10.0.0.1'),
+                                    parser.OFPActionOutput(redirect_out_port)]
+                self.add_flow(datapath, 50, udp_match, redirect_actions)
+            else:
+                pass
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
